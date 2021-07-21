@@ -8,11 +8,11 @@ class transaksiakhir extends Model
 {
     //
     public $table = "transaksi_akhir";
-    protected $primaryKey = 'id_transaksi';
+    protected $primaryKey = 'id_pengajuan';
     
     protected $fillable = [
       'id_transaksi',
-      'id_proactive',
+      'id_pengajuan',
       'total_harga_material',
       'total_harga_jasa',
       'total_sebelum_ppn',

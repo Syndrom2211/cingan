@@ -8,11 +8,11 @@ class pengajuanproject extends Model
 {
     //
     public $table = "pengajuan_project";
-    protected $primaryKey = 'id_pengajuan';
+    protected $primaryKey = 'id_proactive';
     
     protected $fillable = [
-      'id_pengajuan',
       'id_proactive',
+      'id_pengajuan',
       'id_sap',
       'nama_lokasi',
       'file_nde',

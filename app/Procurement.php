@@ -13,6 +13,7 @@ class procurement extends Model
     protected $fillable = [
       'id_procurement',
       'id_proactive',
+      'id_pengajuan',
       'id_po',
     ];
 }

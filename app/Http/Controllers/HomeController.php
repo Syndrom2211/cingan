@@ -12,14 +12,33 @@ use App\NotifikasiKontruksi;
 use App\Procurement;
 use App\NotifikasiProcurement;
 use App\HistoryPengambilan;
+use App\StokGudang;
 use DB;
+use Auth;
 
 class HomeController extends Controller
 {
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     //
-    public function form_pengajuan_project(){
-        $hasil = ListProduk::all();
-        return view('form_pengajuan_project', ['data'=>$hasil]);
+    public function form_pengajuan_project(Request $request){
+        #$hasil = ListProduk::all();
+        $hasil = DB::table('list_produk')
+                ->select('list_produk.*')
+                ->get();
+        $hasil2 = $request->jumlah_lokasi;
+
+        #return view('form_pengajuan_project', ['data'=>$hasil]);
+        return view('form_pengajuan_project', compact(['hasil','hasil2']));
     }
 
     public function proses_pengajuan_project(Request $request){
@@ -31,39 +50,45 @@ class HomeController extends Controller
             'file' => 'mimetypes:application/pdf|max:10000',
         ]);
 
-        //TAMBAH KE PENGAJUAN
-        $tambah_pengajuan = new PengajuanProject;
-        $tambah_pengajuan->id_proactive    = $request->id_proactive;
-        $tambah_pengajuan->id_sap          = $request->id_sap;
-        $tambah_pengajuan->nama_lokasi     = $request->nama_lokasi;
-        $tambah_pengajuan->file_nde        = $request->file_nde;
-        $tambah_pengajuan->file_mom        = $request->file_mom;
-        $tambah_pengajuan->file_boq        = $request->file_boq;
-        $tambah_pengajuan->save();
+        //TAMBAH KE PENGAJUAN             
+        for($i=0;$i<=count($request->nama_lokasi)-1;$i++){
+            $tambah_pengajuan = new PengajuanProject;   
+            $tambah_pengajuan->id_proactive    = $request->id_proactive[$i];
+            $tambah_pengajuan->id_pengajuan    = $request->id_pengajuan;
+            $tambah_pengajuan->id_sap          = $request->id_sap[$i];
+            $tambah_pengajuan->nama_lokasi     = $request->nama_lokasi[$i];
+            $tambah_pengajuan->file_nde        = $request->file_nde;
+            $tambah_pengajuan->file_mom        = $request->file_mom;
+            $tambah_pengajuan->file_boq        = $request->file_boq;
+            $tambah_pengajuan->save();
+        }
 
         //TAMBAH KE RINCIAN PENGAJUAN
         for($i=0;$i<=count($request->pilih_material)-1;$i++){
             $tambah_rincianpengajuan = new RincianPengajuan;
-            $tambah_rincianpengajuan->id_proactive    = $request->id_proactive;
+            $tambah_rincianpengajuan->id_pengajuan    = $request->id_pengajuan;
             $tambah_rincianpengajuan->id              = $request->pilih_material[$i];
             $tambah_rincianpengajuan->save();
         }
 
         //TAMBAH KE NOTIFIKASI KONTRUKSI
         $tambah_notifikasi = new NotifikasiKontruksi;
-        $tambah_notifikasi->id_proactive    = $request->id_proactive;
+        $tambah_notifikasi->id_pengajuan    = $request->id_pengajuan;
         $tambah_notifikasi->status_notifikasi    = "belum_dilihat";
         $tambah_notifikasi->save();
 
-        return redirect('/opsi_material/'.$request->id_proactive);
+        return redirect('/opsi_material/'.$request->id_pengajuan);
     }
 
-    public function opsi_material($id_proactive){
+    public function opsi_material($id_pengajuan){
         #$hasil = RincianPengajuan::all();
         $hasil = DB::table('rincian_pengajuan')
                 ->join('list_produk', 'list_produk.id', '=', 'rincian_pengajuan.id')
+                #->join('pengajuan_project', 'pengajuan_project.id_pengajuan', '=', 'rincian_pengajuan.id_pengajuan')
                 ->select('rincian_pengajuan.*', 'list_produk.*')
-                ->where('rincian_pengajuan.id_proactive', '=', $id_proactive)
+                #->select('rincian_pengajuan.*', 'list_produk.*', 'pengajuan_project.*')
+                ->where('rincian_pengajuan.id_pengajuan', '=', $id_pengajuan)
+                #->distinct()
                 ->get();
 
         return view('opsi_material', ['data'=>$hasil]);
@@ -89,11 +114,11 @@ class HomeController extends Controller
                 ->join('rincian_pengajuan', 'list_produk.id', '=', 'rincian_pengajuan.id')
                 ->join('opsi_material', 'rincian_pengajuan.id_rincian', '=', 'opsi_material.id_rincian')
                 ->select('list_produk.*', 'rincian_pengajuan.*', 'opsi_material.*')
-                ->where('rincian_pengajuan.id_proactive', '=', $request->id_proactive)
+                ->where('rincian_pengajuan.id_pengajuan', '=', $request->id_pengajuan)
                 ->get();
         $hasil2 = DB::table('pengajuan_project')
                 ->select('pengajuan_project.*')
-                ->where('pengajuan_project.id_proactive', '=', $request->id_proactive)
+                ->where('pengajuan_project.id_pengajuan', '=', $request->id_pengajuan)
                 ->get();
 
         return view('hasil_akhir_pengajuan', compact(['hasil','hasil2']));
@@ -101,7 +126,7 @@ class HomeController extends Controller
 
     public function selesai_pengajuan(Request $request){
         $tambah_pengajuan = new TransaksiAkhir;
-        $tambah_pengajuan->id_proactive               = $request->id_proactive;
+        $tambah_pengajuan->id_pengajuan               = $request->id_pengajuan;
         $tambah_pengajuan->total_harga_material     = $request->total_harga_material;
         $tambah_pengajuan->total_harga_jasa         = $request->total_harga_jasa;
         $tambah_pengajuan->total_sebelum_ppn        = $request->total_sebelum_ppn;
@@ -109,15 +134,7 @@ class HomeController extends Controller
         $tambah_pengajuan->total_setelah_ppn        = $request->total_setelah_ppn;
         $tambah_pengajuan->save();
 
-        return redirect('/form_pengajuan_project');
-    }
-
-    public function login(){
-        return view('auth/login');
-    }
-
-    public function register(){
-        return view('auth/register');
+        return redirect('/redirect_page');
     }
 
     #ADMIN PROCUREMEN====================================
@@ -128,23 +145,23 @@ class HomeController extends Controller
 
     public function proses_ubah_notifikasi_k(Request $request){
         $edit = new NotifikasiKontruksi;
-        $edit->id_proactive               = $request->id_proactive;
+        $edit->id_pengajuan               = $request->id_pengajuan;
         $edit->status_notifikasi          = $request->status_notifikasi;
         
         // update data proposal
         DB::table('notifikasi_kontruksi')->where('id_notifikasi_k',$request->id_notifikasi_k)->update([
-            'id_proactive' => $edit->id_proactive,
+            'id_pengajuan' => $edit->id_pengajuan,
             'status_notifikasi' => $edit->status_notifikasi
         ]);
         
         // alihkan halaman ke halaman proposal
-        return redirect('/lihat_data_pengajuan/'.$edit->id_proactive);
+        return redirect('/lihat_data_pengajuan/'.$edit->id_pengajuan);
     }
 
-    public function lihat_data_pengajuan($id_proactive){
+    public function lihat_data_pengajuan($id_pengajuan){
         $hasil = DB::table('pengajuan_project')
                 ->select('pengajuan_project.*')
-                ->where('id_proactive', '=', $id_proactive)
+                ->where('id_pengajuan', '=', $id_pengajuan)
                 ->get();
 
             return view('lihat_data_pengajuan', ['liat'=>$hasil]);
@@ -169,6 +186,7 @@ class HomeController extends Controller
         $tambah_procurement = new Procurement;
         $tambah_procurement->id_procurement    = $request->id_procurement;
         $tambah_procurement->id_proactive      = $request->id_proactive;
+        $tambah_procurement->id_pengajuan      = $request->id_pengajuan;
         $tambah_procurement->id_po             = $request->id_po;
         $tambah_procurement->save();
 
@@ -219,8 +237,8 @@ class HomeController extends Controller
 
     public function data_pengajuan($id_procurement){
         $hasil = DB::table('rincian_pengajuan')
-                ->join('procurement', 'rincian_pengajuan.id_proactive', '=', 'procurement.id_proactive')
-                ->join('pengajuan_project', 'rincian_pengajuan.id_proactive', '=', 'pengajuan_project.id_proactive')
+                ->join('procurement', 'rincian_pengajuan.id_pengajuan', '=', 'procurement.id_pengajuan')
+                ->join('pengajuan_project', 'rincian_pengajuan.id_pengajuan', '=', 'pengajuan_project.id_pengajuan')
                 ->join('opsi_material', 'rincian_pengajuan.id_rincian', '=', 'opsi_material.id_rincian')
                 ->join('list_produk', 'rincian_pengajuan.id', '=', 'list_produk.id')
                 ->join('history_pengambilan', 'rincian_pengajuan.id_rincian', '=', 'history_pengambilan.id_rincian')
@@ -249,4 +267,25 @@ class HomeController extends Controller
     }
     #ADMIN WAREHOUSE====================================
 
+    public function stok_gudang(){
+        $hasil = StokGudang::all();
+        return view('stok_gudang', ['data'=>$hasil]);
+    }
+
+    #public function jumlah_lokasi(){
+    #    return view('jumlah_lokasi');
+    #}
+
+    public function logout(){
+        Auth::logout();
+        return redirect('/');
+    }
+
+    public function redirect_page(){
+        return view('redirect_page');
+    }
+
+    public function jumlah_lokasi(){
+        return view('jumlah_lokasi');
+    }
 }

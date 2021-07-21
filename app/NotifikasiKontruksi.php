@@ -12,7 +12,7 @@ class notifikasikontruksi extends Model
     
     protected $fillable = [
       'id_notifikasi_k',
-      'id_proactive',
+      'id_pengajuan',
       'status_notifikasi',
     ];
 }

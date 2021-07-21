@@ -1,49 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-  <title>Selamat Datang</title>
-  <meta content="" name="description">
-
-  <meta content="" name="keywords">
-
-  <!-- Favicons -->
-  <link href="assets/img/favicon.png" rel="icon">
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-
-  <!-- Vendor CSS Files -->
-  <link rel="stylesheet" type="text/css" href="{!! asset('template/assets/vendor/bootstrap/css/bootstrap.min.css') !!}">
-  <link rel="stylesheet" type="text/css" href="{!! asset('template/assets/vendor/bootstrap-icons/bootstrap-icons.css') !!}">
-  <link rel="stylesheet" type="text/css" href="{!! asset('template/assets/vendor/aos/aos.css') !!}">
-  <link rel="stylesheet" type="text/css" href="{!! asset('template/assets/vendor/remixicon/remixicon.css') !!}">
-  <link rel="stylesheet" type="text/css" href="{!! asset('template/assets/vendor/swiper/swiper-bundle.min.css') !!}">
-  <link rel="stylesheet" type="text/css" href="{!! asset('template/assets/vendor/glightbox/css/glightbox.min.css') !!}">
-  <link rel="stylesheet" type="text/css" href="{!! asset('template/assets/css/style.css') !!}">
-  
-
-  <!-- =======================================================
-  * Template Name: FlexStart - v1.0.0
-  * Template URL: https://bootstrapmade.com/flexstart-bootstrap-startup-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
-</head>
-
-<body data-bs-spy="scroll" data-bs-target="#navbar" data-bs-offset="100">
-
+@extends('layouts.atas_welcome')
+@section('content')
   <!-- ======= Header ======= -->
   <header id="header" class="header fixed-top">
     <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
 
       <a href="index.html" class="logo d-flex align-items-center">
         <img src="{!! asset('template/') !!}/assets/img/logo.png" alt="">
-        <span>Telkom</span>
+        <span>PROVIS</span>
       </a>
 
       <nav id="navbar" class="navbar">    
@@ -52,37 +15,6 @@
 
     </div>
   </header><!-- End Header -->
-
-  <!--MODAL LOGIN-->
-  <div id="onphpidLogin" class="modal fade" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <h4 class="modal-title">Login Dulu Ya Gan</h4>
-          </div>
-          <div class="modal-body">
-            <!-- form login -->
-            <form action="check-login.php" method="post">
-              <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" name="username" placeholder="Username" class="form-control" />
-              </div>
-              <div class="form-group">
-                <label for="password">Password</label>
-                <input type="text" name="password" placeholder="Password" class="form-control" />
-              </div>
-              <div class="text-right">
-                <button class="btn btn-danger" type="submit">Login</button>
-              </div>
-            </form>
-            <!-- end form login -->
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
     
   <!-- ======= Hero Section ======= -->
   <section id="hero" class="hero d-flex align-items-center">
@@ -91,14 +23,39 @@
       <div class="row">
         <div class="col-lg-6 d-flex flex-column justify-content-center">
           <h1 data-aos="fade-up">Selamat datang di wesbite kami...</h1>
-          <h2 data-aos="fade-up" data-aos-delay="400">Melayani anda secara profesionalitas</h2>
+          <h2 data-aos="fade-up" data-aos-delay="400">Akses Login</h2>
           <div data-aos="fade-up" data-aos-delay="600">
             <div class="text-center text-lg-start">
-              <a href="#" data-toggle="modal"
-                            data-target="#onphpidLogin" class="btn-get-started scrollto d-inline-flex align-items-center justify-content-center align-self-center">
-                <span>Login</span>
-                <i class="bi bi-arrow-right"></i>
-              </a>
+            <form class="form-horizontal" method="POST" action="{{ route('login') }}">
+              {{ csrf_field() }}
+              
+              <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                <label for="exampleInputEmail1">Email address</label>
+                <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required autofocus>
+
+                @if ($errors->has('email'))
+                    <span class="help-block">
+                        <strong>{{ $errors->first('email') }}</strong>
+                    </span>
+                @endif
+                
+              </div>
+              <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                <label for="exampleInputPassword1">Password</label>
+                <input id="password" type="password" class="form-control" name="password" required>
+
+                @if ($errors->has('password'))
+                    <span class="help-block">
+                        <strong>{{ $errors->first('password') }}</strong>
+                    </span>
+                @endif
+              </div>
+              <div class="form-check">
+              <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
+                <label class="form-check-label" for="exampleCheck1">Check me out</label>
+              </div>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
             </div>
           </div>
         </div>
@@ -181,21 +138,4 @@
       </div>
     </div>
   </footer><!-- End Footer -->
-
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-  <!-- Vendor JS Files -->
-  <script src="{!! asset('template/') !!}/assets/vendor/bootstrap/js/bootstrap.bundle.js"></script>
-  <script src="{!! asset('template/') !!}/assets/vendor/aos/aos.js"></script>
-  <script src="{!! asset('template/') !!}/assets/vendor/php-email-form/validate.js"></script>
-  <script src="{!! asset('template/') !!}/assets/vendor/swiper/swiper-bundle.min.js"></script>
-  <script src="{!! asset('template/') !!}/assets/vendor/purecounter/purecounter.js"></script>
-  <script src="{!! asset('template/') !!}/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-  <script src="{!! asset('template/') !!}/assets/vendor/glightbox/js/glightbox.min.js"></script>
-
-  <!-- Template Main JS File -->
-  <script src="{!! asset('template/') !!}/assets/js/main.js"></script>
-
-</body>
-
-</html>
+@endsection

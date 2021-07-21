@@ -12,32 +12,27 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth/login');
 });
 
 //Form Pengajuan Project - Admin Kontruksi
-Route::get('/form_pengajuan_project', 'HomeController@form_pengajuan_project')->name('form_pengajuan_project');
+Route::post('/form_pengajuan_project', 'HomeController@form_pengajuan_project')->name('form_pengajuan_project');
 Route::post('/proses_pengajuan_project', 'HomeController@proses_pengajuan_project')->name('proses_pengajuan_project');
-Route::get('/opsi_material/{id_proactive}', 'HomeController@opsi_material')->name('opsi_material');
+Route::get('/opsi_material/{id_pengajuan}', 'HomeController@opsi_material')->name('opsi_material');
 Route::post('/hasil_akhir_pengajuan', 'HomeController@hasil_akhir_pengajuan')->name('hasil_akhir_pengajuan');
 Route::post('/selesai_pengajuan', 'HomeController@selesai_pengajuan')->name('selesai_pengajuan');
 
 #Halaman admin-------------------------
-Route::get('/admin', 'HomeController@admin')->name('admin');
 Auth::routes();
-Auth::routes();
-Route::get('/home', 'HomeController@index')->name('home');
-#Register
-Route::get('/register', 'HomeController@register')->name('register');
-Route::get('/login', 'HomeController@login')->name('login');
+Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
 #Login------------------------------------
 
 //Data Pengajuan Project - Admin Procurement-------------------------
 Route::get('/admin_procurement', 'HomeController@admin_procurement')->name('admin_procurement');
 Route::post('/proses_ubah_notifikasi_k', 'HomeController@proses_ubah_notifikasi_k')->name('proses_ubah_notifikasi_k');
-Route::get('/lihat_data_pengajuan/{id_proactive}', 'HomeController@lihat_data_pengajuan')->name('lihat_data_pengajuan');
+Route::get('/lihat_data_pengajuan/{id_pengajuan}', 'HomeController@lihat_data_pengajuan')->name('lihat_data_pengajuan');
 Route::get('/lihat_data_pengajuan', 'HomeController@lihat_data_pengajuan_all')->name('lihat_data_pengajuan_all');
-Route::get('/update_pengajuan/{id_proactive}', 'HomeController@update_pengajuan')->name('update_pengajuan');
+Route::get('/update_pengajuan/{id_pengajuan}', 'HomeController@update_pengajuan')->name('update_pengajuan');
 Route::post('/proses_update_pengajuan', 'HomeController@proses_update_pengajuan')->name('proses_update_pengajuan');
 
 //Data PR/PO - Admin Warehouse
@@ -47,3 +42,10 @@ Route::get('/lihat_data_po/{id_procurement}', 'HomeController@lihat_data_po')->n
 Route::get('/lihat_data_po', 'HomeController@lihat_data_po_all')->name('lihat_data_po_all');
 Route::get('/data_pengajuan/{id_procurement}', 'HomeController@data_pengajuan')->name('data_pengajuan');
 Route::post('/update_history_pengajuan', 'HomeController@update_history_pengajuan')->name('update_history_pengajuan');
+
+Route::get('/stok_gudang', 'HomeController@stok_gudang')->name('stok_gudang');
+Route::get('/redirect_page', 'HomeController@redirect_page')->name('redirect_page');
+
+#Route::get('/jumlah_lokasi', 'HomeController@jumlah_lokasi')->name('jumlah_lokasi');
+
+Route::get('/jumlah_lokasi', 'HomeController@jumlah_lokasi')->name('jumlah_lokasi');

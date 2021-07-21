@@ -12,7 +12,7 @@ class rincianpengajuan extends Model
     
     protected $fillable = [
       'id_rincian',
-      'id_proactive',
+      'id_pengajuan',
       'id',
     ];
 }
